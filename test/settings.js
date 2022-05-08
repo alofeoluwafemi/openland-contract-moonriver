@@ -1,18 +1,18 @@
 const Settings = artifacts.require("Settings");
 
 contract("Settings", function ([deployer]) {
-  before(async () => {
+  before(async function () {
     this.settings = await Settings.deployed();
   });
 
-  weeks = (number) => {
-    const oneWeek = 60 * 60 * 24 * 7;
-    oneWeek * number;
-  };
-
   it("should set max auction", async function () {
-    await settings.setMaxAuctionLength(weeks(4));
+    await this.settings.setMaxAuctionLength(weeks(4));
 
-    assert.equal(settings.maxAuctionLength(), weeks(4));
+    assert.equal(await this.settings.maxAuctionLength(), weeks(4));
   });
 });
+
+const weeks = (number) => {
+  const oneWeek = 60 * 60 * 24 * 7;
+  return oneWeek * number;
+};
