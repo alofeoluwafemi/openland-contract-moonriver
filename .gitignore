@@ -1,0 +1,7 @@
+node_modules
+.idea
+.key
+.DS_Store
+.idea
+.env.json
+contracts/*-Flatten.sol
