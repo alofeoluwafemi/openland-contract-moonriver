@@ -87,4 +87,8 @@ contract ERC721VaultFactory is Ownable, Pausable {
   function unpause() external onlyOwner {
     _unpause();
   }
+
+  function getVault(uint256 _id) public view returns (address) {
+    return vaults[_id];
+  }
 }

@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract TickeoTicketingNFT is ERC721URIStorage {
+contract OpenLandNFT is ERC721URIStorage {
   ////////////////////////////////////////
   //                                    //
   //         STATE VARIABLES            //
@@ -27,13 +27,13 @@ contract TickeoTicketingNFT is ERC721URIStorage {
   //                                    //
   ////////////////////////////////////////
 
-  constructor(address _ochesrator) ERC721("OpenLand", "OPEN") {}
+  constructor() ERC721("OpenLand", "OLAND") {}
 
   /**
    * @dev mint a new Property for a new event
    * @param ipfsUrl of json object with media details (opensea compatible)
    */
-  function newTicket(string memory ipfsUrl) public returns (uint256) {
+  function mintProperty(string memory ipfsUrl) public returns (uint256) {
     _tokenIds.increment();
 
     uint256 newTokenId = _tokenIds.current();
