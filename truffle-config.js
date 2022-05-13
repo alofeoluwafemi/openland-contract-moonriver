@@ -45,6 +45,10 @@ module.exports = {
       host: "127.0.0.1", // Localhost (default: none)
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
+      gas: 4698712,
+      gasPrice: 25000000000,
+      //timeoutBlocks: 500, // # of blocks before a deployment times out  (minimum/default: 50)
+      // gas: 55000000, // Gas limit used for deploys (default: 8000000)
     },
     // Another network with more advanced options...
     // advanced: {
@@ -86,8 +90,8 @@ module.exports = {
       settings: {
         // See the solidity docs for advice about optimization and evmVersion
         optimizer: {
-          enabled: false,
-          runs: 200,
+          enabled: true,
+          runs: 100,
         },
         evmVersion: "byzantium",
       },

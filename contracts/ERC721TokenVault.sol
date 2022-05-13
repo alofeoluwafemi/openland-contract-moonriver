@@ -8,12 +8,14 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
 import "./Settings.sol";
+import "./SharedStorage.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
-contract TokenVault is ERC20Upgradeable, ERC721HolderUpgradeable {
-  using Address for address;
+contract ERC721TokenVault is ERC20Upgradeable, ERC721HolderUpgradeable {
+  // address of logic contract
+  address public logic;
 
   /// -----------------------------------
   /// -------- BASIC INFORMATION --------
@@ -65,7 +67,7 @@ contract TokenVault is ERC20Upgradeable, ERC721HolderUpgradeable {
   /// -----------------------------------
 
   /// @notice the governance contract which gets paid in ETH
-  address public immutable settings;
+  address public settings;
 
   /// @notice the address who initially deposited the NFT
   address public curator;
@@ -106,6 +108,8 @@ contract TokenVault is ERC20Upgradeable, ERC721HolderUpgradeable {
 
   /// @notice An event emitted when someone cashes in ERC20 tokens for ETH from an ERC721 token sale
   event Cash(address indexed owner, uint256 shares);
+
+  using Address for address;
 
   constructor(address _settings) {
     settings = _settings;

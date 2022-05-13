@@ -33,7 +33,7 @@ contract ERC721VaultFactory is Ownable, Pausable {
 
   constructor(address _settings) {
     settings = _settings;
-    logic = address(new TokenVault(_settings));
+    logic = address(new ERC721TokenVault(_settings));
   }
 
   /// @notice the function to mint a new vault
@@ -86,9 +86,5 @@ contract ERC721VaultFactory is Ownable, Pausable {
 
   function unpause() external onlyOwner {
     _unpause();
-  }
-
-  function getVault(uint256 _id) public view returns (address) {
-    return vaults[_id];
   }
 }

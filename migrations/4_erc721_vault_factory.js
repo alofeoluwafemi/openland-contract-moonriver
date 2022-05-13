@@ -4,5 +4,5 @@ const Settings = artifacts.require("Settings");
 module.exports = async function (deployer) {
   const settings = await Settings.deployed();
 
-  deployer.deploy(ERC721VaultFactory, settings.address);
+  return deployer.deploy(ERC721VaultFactory, settings.address);
 };
