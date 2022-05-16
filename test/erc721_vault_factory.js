@@ -4,22 +4,14 @@ const InitializedProxy = artifacts.require("InitializedProxy");
 const Settings = artifacts.require("Settings");
 const { utils, providers, BigNumber } = require("ethers");
 const { AbiCoder, Interface } = require("ethers/lib/utils");
+const { util } = require("prettier");
 
-contract("ERC721VaultFactory", function ([deployer]) {
+contract("ERC721VaultFactory", function ([deployer, account1]) {
   before(async function () {
     this.settings = await Settings.deployed();
     this.factory = await ERC721VaultFactory.deployed();
     this.openlandnft = await OpenLandNFT.deployed();
-    // this.vault = await TokenVault.deployed();
   });
-
-  // const data =
-  //   "0x17528c06ebd090dca20d27a5894255011d3472449ba4e8a310902a5f6b45e348";
-
-  // const abiCoder = new AbiCoder();
-  // const number = abiCoder.decode(["uint256"], data);
-
-  // console.log(number.toString());
 
   it("should assert that deploy can mint land as nft", async function () {
     const ipfsUrl =
@@ -41,6 +33,8 @@ contract("ERC721VaultFactory", function ([deployer]) {
     //Approve factory to spend NFT token
     await this.openlandnft.setApprovalForAll(this.factory.address, true);
 
+    let ABI, interface, data, response;
+
     /// @notice the function to mint a new vault
     /// @param _name the desired name of the vault
     /// @param _symbol the desired sumbol of the vault
@@ -50,7 +44,7 @@ contract("ERC721VaultFactory", function ([deployer]) {
     /// @param _listPrice the initial price of the NFT
     /// @param _fee is the curators fee on creation
     /// @return the ID of the vault
-    const response = await this.factory.mint(
+    response = await this.factory.mint(
       "Lakwe Lakes",
       "LAK",
       this.openlandnft.address,
@@ -72,93 +66,79 @@ contract("ERC721VaultFactory", function ([deployer]) {
 
     const vault = await InitializedProxy.at(_vault);
 
-    let ABI, interface, data, _response;
+    this.vault = vault;
 
     //Read proxy state for ERC721 token address
     ABI = ["function token() public view returns(address)"];
     interface = new utils.Interface(ABI);
     data = interface.encodeFunctionData("token", []);
 
-    _response = await vault.delegateTo(0, data);
-    const token = _response.logs[0].args._data;
+    response = await vault.delegateTo(0, data);
+    const token = response.logs[0].args._data;
 
     //Read proxy state for ERC721 token id
     ABI = ["function id() public view returns(uint256)"];
     interface = new utils.Interface(ABI);
     data = interface.encodeFunctionData("id", []);
 
-    _response = await vault.delegateTo(1, data);
-    const id = _response.logs[0].args._data;
+    response = await vault.delegateTo(1, data);
+    const id = response.logs[0].args._data;
 
     //Read proxy state for reserve total
     ABI = ["function reserveTotal() public view returns(uint256)"];
     interface = new utils.Interface(ABI);
     data = interface.encodeFunctionData("reserveTotal", []);
 
-    _response = await vault.delegateTo(1, data);
-    const reserveTotal = _response.logs[0].args._data;
-
-    console.log("reserveTotal: ", reserveTotal.toString());
+    response = await vault.delegateTo(1, data);
+    const reserveTotal = response.logs[0].args._data;
 
     //Read proxy state for live price
     ABI = ["function livePrice() public view returns(uint256)"];
     interface = new utils.Interface(ABI);
     data = interface.encodeFunctionData("livePrice", []);
 
-    _response = await vault.delegateTo(1, data);
-    const livePrice = _response.logs[0].args._data;
-
-    console.log("livePrice: ", livePrice.toString());
+    response = await vault.delegateTo(1, data);
+    const livePrice = response.logs[0].args._data;
 
     //Read proxy state for voting tokens
     ABI = ["function votingTokens() public view returns(uint256)"];
     interface = new utils.Interface(ABI);
     data = interface.encodeFunctionData("votingTokens", []);
 
-    _response = await vault.delegateTo(1, data);
-    const votingTokens = _response.logs[0].args._data;
-
-    console.log("votingTokens: ", votingTokens.toString());
+    response = await vault.delegateTo(1, data);
+    const votingTokens = response.logs[0].args._data;
 
     //Read proxy state for reserve price
     ABI = ["function reservePrice() public view returns(uint256)"];
     interface = new utils.Interface(ABI);
     data = interface.encodeFunctionData("reservePrice", []);
 
-    _response = await vault.delegateTo(1, data);
-    const reservePrice = _response.logs[0].args._data;
-
-    console.log("reservePrice: ", reservePrice.toString());
+    response = await vault.delegateTo(1, data);
+    const reservePrice = response.logs[0].args._data;
 
     //Read proxy state for user prices
     ABI = ["function userPrices(address) public view returns(uint256)"];
     interface = new utils.Interface(ABI);
     data = interface.encodeFunctionData("userPrices", [deployer]);
 
-    _response = await vault.delegateTo(1, data);
-    const userPrice = _response.logs[0].args._data;
-
-    console.log("userPrice: ", userPrice.toString());
+    response = await vault.delegateTo(1, data);
+    const userPrice = response.logs[0].args._data;
 
     //Read proxy state for fee
     ABI = ["function fee() public view returns(uint256)"];
     interface = new utils.Interface(ABI);
     data = interface.encodeFunctionData("fee", []);
 
-    _response = await vault.delegateTo(1, data);
-    const fee = _response.logs[0].args._data;
-
-    console.log("fee: ", fee.toString());
+    response = await vault.delegateTo(1, data);
+    const fee = response.logs[0].args._data;
 
     //Read proxy state for curator address
     ABI = ["function curator() public view returns(address)"];
     interface = new utils.Interface(ABI);
     data = interface.encodeFunctionData("curator", []);
 
-    _response = await vault.delegateTo(0, data);
-    const curator = _response.logs[0].args._data;
-
-    console.log("curator: ", curator);
+    response = await vault.delegateTo(0, data);
+    const curator = response.logs[0].args._data;
 
     //Read proxy state for auction state
     // 0 = inactive
@@ -172,17 +152,50 @@ contract("ERC721VaultFactory", function ([deployer]) {
     _response = await vault.delegateTo(3, data);
     const auctionState = _response.logs[0].args._data;
 
-    console.log("auctionState: ", auctionState.toString());
-
+    assert.equal(
+      reserveTotal.toString(),
+      utils.parseEther("10000").mul(utils.parseEther("200")).toString() //Reserve total is supply * list price
+    );
+    assert.equal(livePrice, 0); // Live price is the price of the property(NFT) in MOVR when auction is live
+    assert.equal(reservePrice, 200e18); // Reserve price is the price of the property(NFT) in MOVR
+    assert.equal(votingTokens, 10000e18); // the number of ownership tokens voting on the reserve price at any given time
+    assert.equal(userPrice, 200e18);
+    assert.equal(fee, 20);
+    assert.equal(curator, deployer);
+    assert.equal(auctionState, 0);
     assert.equal(_token, token);
     assert.equal(_id.toString(), id.toString());
-
-    //Check number of voting tokens
-    //Check curator address
-    //Confirm action state is inactive
-    //Confirm reserve Total
-    //Confirm livePrice
   });
 
+  it("should allow curator to update curator address", async function () {
+    let ABI, interface, data, response;
+    ABI = ["function updateCurator(address _curator) external"];
+    interface = new utils.Interface(ABI);
+
+    data = interface.encodeFunctionData("updateCurator", [account1]);
+
+    response = await this.vault.sendTransaction({
+      from: deployer,
+      data: data,
+    });
+
+    //Read proxy state for curator address
+    ABI = ["function curator() public view returns(address)"];
+    interface = new utils.Interface(ABI);
+    data = interface.encodeFunctionData("curator", []);
+
+    response = await this.vault.delegateTo(0, data);
+    const curator = response.logs[0].args._data;
+
+    assert.equal(curator, account1);
+  });
+
+  // @Todo write test for governance contracts
   //Update User Price
+  //Update Fee
+  //Update Aution Length
+  //Update Reserve Price
+  //Can start auction
+
+  // @Todo write test for governance contracts
 });

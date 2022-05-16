@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./Interfaces/IWETH.sol";
+import "./Interfaces/IWMOVR.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -21,8 +21,8 @@ contract ERC721TokenVault is ERC20Upgradeable, ERC721HolderUpgradeable {
   /// -------- BASIC INFORMATION --------
   /// -----------------------------------
 
-  /// @notice weth address
-  address public constant weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+  /// @notice wmovr address
+  address public constant wmovr = 0x98878B06940aE243284CA214f92Bb71a2b032B8A;
 
   /// -----------------------------------
   /// -------- TOKEN INFORMATION --------
@@ -66,7 +66,7 @@ contract ERC721TokenVault is ERC20Upgradeable, ERC721HolderUpgradeable {
   /// -------- VAULT INFORMATION --------
   /// -----------------------------------
 
-  /// @notice the governance contract which gets paid in ETH
+  /// @notice the governance contract which gets paid in MOVR
   address public settings;
 
   /// @notice the address who initially deposited the NFT
@@ -106,7 +106,7 @@ contract ERC721TokenVault is ERC20Upgradeable, ERC721HolderUpgradeable {
   /// @notice An event emitted when someone redeems all tokens for the NFT
   event Redeem(address indexed redeemer);
 
-  /// @notice An event emitted when someone cashes in ERC20 tokens for ETH from an ERC721 token sale
+  /// @notice An event emitted when someone cashes in ERC20 tokens for MOVR from an ERC721 token sale
   event Cash(address indexed owner, uint256 shares);
 
   using Address for address;
@@ -262,7 +262,7 @@ contract ERC721TokenVault is ERC20Upgradeable, ERC721HolderUpgradeable {
   /// --------------------------------
 
   /// @notice a function for an end user to update their desired sale price
-  /// @param _new the desired price in ETH
+  /// @param _new the desired price in MOVR
   function updateUserPrice(uint256 _new) external {
     require(
       auctionState == State.inactive,
@@ -356,7 +356,7 @@ contract ERC721TokenVault is ERC20Upgradeable, ERC721HolderUpgradeable {
     }
   }
 
-  /// @notice kick off an auction. Must send reservePrice in ETH
+  /// @notice kick off an auction. Must send reservePrice in MOVR
   function start() external payable {
     require(auctionState == State.inactive, "start:no auction starts");
     require(msg.value >= reservePrice(), "start:too low bid");
@@ -387,7 +387,7 @@ contract ERC721TokenVault is ERC20Upgradeable, ERC721HolderUpgradeable {
       auctionEnd += 15 minutes;
     }
 
-    _sendWETH(winning, livePrice);
+    _sendWMOVR(winning, livePrice);
 
     livePrice = msg.value;
     winning = payable(msg.sender);
@@ -423,7 +423,7 @@ contract ERC721TokenVault is ERC20Upgradeable, ERC721HolderUpgradeable {
     emit Redeem(msg.sender);
   }
 
-  /// @notice an external function to burn ERC20 tokens to receive ETH from ERC721 token purchase
+  /// @notice an external function to burn ERC20 tokens to receive MOVR from ERC721 token purchase
   function cash() external {
     require(auctionState == State.ended, "cash:vault not closed yet");
     uint256 bal = balanceOf(msg.sender);
@@ -431,23 +431,23 @@ contract ERC721TokenVault is ERC20Upgradeable, ERC721HolderUpgradeable {
     uint256 share = (bal * address(this).balance) / totalSupply();
     _burn(msg.sender, bal);
 
-    _sendETHOrWETH(payable(msg.sender), share);
+    _sendMOVROrWMOVR(payable(msg.sender), share);
 
     emit Cash(msg.sender, share);
   }
 
-  /// @dev internal helper function to send ETH and WETH on failure
-  function _sendWETH(address who, uint256 amount) internal {
-    IWETH(weth).deposit{ value: amount }();
-    IWETH(weth).transfer(who, IWETH(weth).balanceOf(address(this)));
+  /// @dev internal helper function to send MOVR and WMOVR on failure
+  function _sendWMOVR(address who, uint256 amount) internal {
+    IWMOVR(wmovr).deposit{ value: amount }();
+    IWMOVR(wmovr).transfer(who, IWMOVR(wmovr).balanceOf(address(this)));
   }
 
-  /// @dev internal helper function to send ETH and WETH on failure
-  function _sendETHOrWETH(address who, uint256 amount) internal {
-    // contracts get bet WETH because they can be mean
+  /// @dev internal helper function to send MOVR and WMOVR on failure
+  function _sendMOVROrWMOVR(address who, uint256 amount) internal {
+    // contracts get bet WMOVR because they can be mean
     if (who.isContract()) {
-      IWETH(weth).deposit{ value: amount }();
-      IWETH(weth).transfer(who, IWETH(weth).balanceOf(address(this)));
+      IWMOVR(wmovr).deposit{ value: amount }();
+      IWMOVR(wmovr).transfer(who, IWMOVR(wmovr).balanceOf(address(this)));
     } else {
       payable(who).transfer(amount);
     }

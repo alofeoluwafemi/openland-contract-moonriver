@@ -18,10 +18,10 @@
  *
  */
 
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
-//
-// const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
+const HDWalletProvider = require("@truffle/hdwallet-provider");
+
+const fs = require("fs");
+const privateKey = fs.readFileSync(".key").toString().trim();
 
 module.exports = {
   /**
@@ -33,6 +33,12 @@ module.exports = {
    *
    * $ truffle test --network <network-name>
    */
+
+  plugins: ["truffle-plugin-verify"],
+
+  api_keys: {
+    moonscan: "YMV85435PXHIPC28NUAI8Z736833M3ZIV7",
+  },
 
   networks: {
     // Useful for testing. The `development` name is special - truffle uses it by default
@@ -49,6 +55,18 @@ module.exports = {
       gasPrice: 25000000000,
       //timeoutBlocks: 500, // # of blocks before a deployment times out  (minimum/default: 50)
       // gas: 55000000, // Gas limit used for deploys (default: 8000000)
+    },
+    moonriver: {
+      provider: () =>
+        new HDWalletProvider(
+          privateKey,
+          "https://moonriver.blastapi.io/0d328b50-fe9d-409b-9a6c-89cc1f6dfc60"
+        ),
+      network_id: 1285,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      skipDryRun: true,
+      networkCheckTimeoutnetworkCheckTimeout: 60000,
     },
     // Another network with more advanced options...
     // advanced: {
