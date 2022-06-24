@@ -1,19 +1,19 @@
-const OpenLandNFT = artifacts.require("OpenLandNFT");
-const ERC721VaultFactory = artifacts.require("ERC721VaultFactory");
-const InitializedProxy = artifacts.require("InitializedProxy");
-const Settings = artifacts.require("Settings");
+// const OpenLandNFT = artifacts.require("OpenLandNFT");
+// const ERC721VaultFactory = artifacts.require("ERC721VaultFactory");
+// const InitializedProxy = artifacts.require("InitializedProxy");
+// const Settings = artifacts.require("Settings");
 const { utils, providers, BigNumber } = require("ethers");
-const { AbiCoder, Interface } = require("ethers/lib/utils");
-const { util } = require("prettier");
+// const { AbiCoder, Interface } = require("ethers/lib/utils");
+const { CeloContract, newKit } = require("@celo/contractkit");
 
 contract("ERC721VaultFactory", function ([deployer, account1]) {
-  before(async function () {
-    this.settings = await Settings.deployed();
-    this.factory = await ERC721VaultFactory.deployed();
-    this.openlandnft = await OpenLandNFT.deployed();
-  });
+  // before(async function () {
+  //   this.settings = await Settings.deployed();
+  //   this.factory = await ERC721VaultFactory.deployed();
+  //   this.openlandnft = await OpenLandNFT.deployed();
+  // });
 
-  it("should assert that deploy can mint land as nft", async function () {
+  it.skip("should assert that deploy can mint land as nft", async function () {
     const ipfsUrl =
       "https://ipfs.io/ipfs/QmQqzMTavQgT4f4T5v6PWBp7XNKtoPmC9jvn12WPT3gkSE";
     const response = await this.openlandnft.mintProperty(ipfsUrl);
@@ -29,7 +29,7 @@ contract("ERC721VaultFactory", function ([deployer, account1]) {
     assert.equal(balance.toString(), 1);
   });
 
-  it("should assert that deploy can mint vault", async function () {
+  it.skip("should assert that deploy can mint vault", async function () {
     //Approve factory to spend NFT token
     await this.openlandnft.setApprovalForAll(this.factory.address, true);
 
@@ -167,7 +167,7 @@ contract("ERC721VaultFactory", function ([deployer, account1]) {
     assert.equal(_id.toString(), id.toString());
   });
 
-  it("should allow curator to update curator address", async function () {
+  it.skip("should allow curator to update curator address", async function () {
     let ABI, interface, data, response;
     ABI = ["function updateCurator(address _curator) external"];
     interface = new utils.Interface(ABI);
@@ -188,6 +188,33 @@ contract("ERC721VaultFactory", function ([deployer, account1]) {
     const curator = response.logs[0].args._data;
 
     assert.equal(curator, account1);
+  });
+
+  it("should get baseGasPrice", async function () {
+    let abi = [
+      "event Mint(address indexed token, uint256 id, uint256 price, address vault, uint256 vaultId)",
+    ];
+    let iface = new utils.Interface(abi);
+
+    const data =
+      "0x000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000006c6b935b8bbd400000000000000000000000000000fae92e6a3854c61cd23fd87d3a512b3e93260e9b0000000000000000000000000000000000000000000000000000000000000005";
+
+    const topics = [
+      "0xf9c32fbc56ff04f32a233ebc26e388564223745e28abd8d0781dd906537f563e",
+      "0x000000000000000000000000a0b4ba8ee06d766cbefd1c140a9b1ef00e6ec323",
+    ];
+
+    const log = iface.decodeEventLog("Mint", data, topics);
+
+    const params = {
+      token_address: log["token"], // The address of the ERC20 token minted for the vault
+      token_id: log["id"].toString(), // The ERC 721 token locked in the vault the uint256 ID of the token
+      token_price: log["price"].toString(), // Price of each token in wei
+      vault_address: log["vault"], // The contract address of the vault
+      vault_id: log["vaultId"], // The Id of the vault in the factpry contract which can be accessed as await factory.vaults(vaultId) and returns the vault address
+    };
+
+    console.log(params);
   });
 
   // @Todo write test for governance contracts
